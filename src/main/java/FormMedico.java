@@ -1,3 +1,4 @@
+// Luiz Felipe Feranandes Ramos - RA: 2767112
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
@@ -14,8 +15,66 @@ public class FormMedico extends javax.swing.JFrame {
     /**
      * Creates new form FormMedico
      */
-    public FormMedico() {
+    //MÉTODO SINGLETON
+    private static FormMedico instancia;
+
+    public static FormMedico getInstance() {
+        if (instancia == null) {
+            instancia = new FormMedico();
+        }
+        return instancia;
+    }
+
+    private FormMedico() {
         initComponents();
+        // listeners
+        btnCadastro.addActionListener(evt -> {
+            Medico m = new Medico();
+            m.setNome(inpNomeMedico.getText());
+            try {
+                int idade = Integer.parseInt(inpIdadelMedico.getText());
+                m.setIdade(idade);
+            } catch (NumberFormatException nfe) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Idade inválida (não é número)");
+                return;
+            } catch (IdadeInvalidaException ex) {
+                javax.swing.JOptionPane.showMessageDialog(this, ex.getMessage());
+                return;
+            }
+            m.setCpf(inpCpfMedico.getText());
+            m.setSexo(cbSexoMedico.getSelectedItem().toString().charAt(0));
+            m.setEmail(inpEmailMedico.getText());
+            try {
+                int crm = Integer.parseInt(inpCrmMedico.getText());
+                m.setCrm(crm);
+            } catch (NumberFormatException nfe) {
+                javax.swing.JOptionPane.showMessageDialog(this, "CRM inválido (não é número)");
+                return;
+            } catch (CrmInvalidoException ex) {
+                javax.swing.JOptionPane.showMessageDialog(this, ex.getMessage());
+                return;
+            }
+            m.setEspecialidade(inpEspecialidadeMedico.getText());
+            BDHospital.getInstance().inserirMedico(m);
+            javax.swing.JOptionPane.showMessageDialog(this, "Médico cadastrado com sucesso!");
+            // limpar
+            inpNomeMedico.setText(""); inpIdadelMedico.setText(""); inpCpfMedico.setText(""); inpEmailMedico.setText(""); inpCrmMedico.setText(""); inpEspecialidadeMedico.setText("");
+            cbSexoMedico.setSelectedIndex(0);
+        });
+
+        btnCancelar.addActionListener(evt -> {
+            this.dispose();
+            instancia = null;
+        });
+
+        btnCadPaciente.addActionListener(evt -> FormPaciente.getInstance().setVisible(true));
+        btnCadDoador.addActionListener(evt -> FormDoador.getInstance().setVisible(true));
+        btnRelPaciente.addActionListener(evt -> {
+            java.util.List<Medico> list = BDHospital.getInstance().listarMedicos();
+            StringBuilder sb = new StringBuilder();
+            for (Medico mm : list) sb.append(mm.listar()).append('\n');
+            javax.swing.JOptionPane.showMessageDialog(this, sb.length()==0?"Nenhum médico cadastrado":sb.toString());
+        });
     }
 
     /**
@@ -49,6 +108,7 @@ public class FormMedico extends javax.swing.JFrame {
         btnCadPaciente = new javax.swing.JMenuItem();
         btnCadDoador = new javax.swing.JMenuItem();
         btnCadMedico = new javax.swing.JMenuItem();
+        btnSair = new javax.swing.JMenuItem();
         btnRelatorios = new javax.swing.JMenu();
         btnRelPaciente = new javax.swing.JMenuItem();
         btnRelDoador = new javax.swing.JMenuItem();
@@ -159,6 +219,9 @@ public class FormMedico extends javax.swing.JFrame {
 
         btnMenu.add(cadMenu);
 
+        btnSair.setText("Sair");
+        btnMenu.add(btnSair);
+
         barMenu.add(btnMenu);
 
         btnRelatorios.setText("Relatórios");
@@ -233,7 +296,7 @@ public class FormMedico extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(32, Short.MAX_VALUE)
+                .addContainerGap(44, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -258,7 +321,6 @@ public class FormMedico extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(lbTipoSanguineoMedico)
                         .addGap(32, 32, 32)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lbEspecialidadeMedico)
                     .addComponent(lbCpfMedico))
@@ -320,6 +382,18 @@ public class FormMedico extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_inpCrmMedicoActionPerformed
 
+    private void btnSairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSairActionPerformed
+        sair();
+    }//GEN-LAST:event_btnSairActionPerformed
+
+    public void sair() {
+        int resp = javax.swing.JOptionPane.showConfirmDialog(this, "Deseja realmente sair?", "Saída", javax.swing.JOptionPane.YES_NO_OPTION);
+        if (resp == javax.swing.JOptionPane.YES_OPTION) {
+            this.dispose();
+            instancia = null;
+        }
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -342,7 +416,7 @@ public class FormMedico extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new FormMedico().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> FormMedico.getInstance().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -357,6 +431,7 @@ public class FormMedico extends javax.swing.JFrame {
     private javax.swing.JMenuItem btnRelMedico;
     private javax.swing.JMenuItem btnRelPaciente;
     private javax.swing.JMenu btnRelatorios;
+    private javax.swing.JMenuItem btnSair;
     private javax.swing.JMenu cadMenu;
     private javax.swing.JComboBox<String> cbSexoMedico;
     private javax.swing.JTextField inpCpfMedico;

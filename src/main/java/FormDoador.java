@@ -1,3 +1,4 @@
+// Luiz Felipe Feranandes Ramos - RA: 2767112
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
@@ -14,8 +15,58 @@ public class FormDoador extends javax.swing.JFrame {
     /**
      * Creates new form FormDoador
      */
-    public FormDoador() {
+    //MÉTODO SINGLETON
+    private static FormDoador instancia;
+
+    public static FormDoador getInstance() {
+        if (instancia == null) {
+            instancia = new FormDoador();
+        }
+        return instancia;
+    }
+
+    private FormDoador() {
         initComponents();
+        // listeners
+        btnCadastro.addActionListener(evt -> {
+            Doador d = new Doador();
+            d.setNome(inpNomeDoador.getText());
+            try {
+                int idade = Integer.parseInt(inpIdadeDoador.getText());
+                d.setIdade(idade);
+            } catch (NumberFormatException nfe) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Idade inválida (não é número)");
+                return;
+            } catch (IdadeInvalidaException ex) {
+                javax.swing.JOptionPane.showMessageDialog(this, ex.getMessage());
+                return;
+            }
+            d.setCpf(inpCpfDoador.getText());
+            d.setSexo(cbSexoDoador.getSelectedItem().toString().charAt(0));
+            d.setEmail(inpOrgaoDoador.getText());
+            // usar campo existente como órgão (form foi criado originalmente com outro nome)
+            d.setOrgao(inpOrgaoDoador.getText());
+            d.setDataCadastro(java.time.LocalDate.now().toString());
+            BDHospital.getInstance().inserirDoador(d);
+            javax.swing.JOptionPane.showMessageDialog(this, "Doador cadastrado com sucesso!");
+            // limpar
+            inpNomeDoador.setText(""); inpIdadeDoador.setText(""); inpCpfDoador.setText(""); inpOrgaoDoador.setText(""); cbDoencaDoador.setSelectedIndex(0);
+            cbSexoDoador.setSelectedIndex(0); inpOrgaoDoador.setText("");
+        });
+
+        btnCancelar.addActionListener(evt -> {
+            this.dispose();
+            instancia = null;
+        });
+
+        btnCadPaciente.addActionListener(evt -> FormPaciente.getInstance().setVisible(true));
+        btnCadMedico.addActionListener(evt -> FormMedico.getInstance().setVisible(true));
+        btnRelDoador.addActionListener(evt -> {
+            java.util.List<Doador> list = BDHospital.getInstance().listarDoadores();
+            StringBuilder sb = new StringBuilder();
+            for (Doador dd : list) sb.append(dd.listar()).append('\n');
+            javax.swing.JOptionPane.showMessageDialog(this, sb.length()==0?"Nenhum doador cadastrado":sb.toString());
+        });
     }
 
     /**
@@ -28,7 +79,6 @@ public class FormDoador extends javax.swing.JFrame {
     private void initComponents() {
 
         lbIdadeDoador = new javax.swing.JLabel();
-        inpDoencaDoador = new javax.swing.JTextField();
         inpIdadeDoador = new javax.swing.JTextField();
         lbSexoDoador = new javax.swing.JLabel();
         cbSexoDoador = new javax.swing.JComboBox<>();
@@ -38,11 +88,12 @@ public class FormDoador extends javax.swing.JFrame {
         lbNomeDoador = new javax.swing.JLabel();
         btnCancelar = new javax.swing.JButton();
         inpNomeDoador = new javax.swing.JTextField();
-        cbTipoanguineoDoador = new javax.swing.JComboBox<>();
         lbEmailDoador = new javax.swing.JLabel();
         lbTipoSanguineoDoador = new javax.swing.JLabel();
-        inpEmailDoador = new javax.swing.JTextField();
+        inpOrgaoDoador = new javax.swing.JTextField();
         lbDoencaDoador = new javax.swing.JLabel();
+        cbDoencaDoador = new javax.swing.JComboBox<>();
+        inpEmailDoador1 = new javax.swing.JTextField();
         barMenu = new javax.swing.JMenuBar();
         btnMenu = new javax.swing.JMenu();
         cadMenu = new javax.swing.JMenu();
@@ -58,13 +109,6 @@ public class FormDoador extends javax.swing.JFrame {
 
         lbIdadeDoador.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lbIdadeDoador.setText("Idade");
-
-        inpDoencaDoador.setHorizontalAlignment(javax.swing.JTextField.LEFT);
-        inpDoencaDoador.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inpDoencaDoadorActionPerformed(evt);
-            }
-        });
 
         inpIdadeDoador.setHorizontalAlignment(javax.swing.JTextField.LEFT);
         inpIdadeDoador.addActionListener(new java.awt.event.ActionListener() {
@@ -93,6 +137,11 @@ public class FormDoador extends javax.swing.JFrame {
         });
 
         btnCadastro.setText("Cadastrar");
+        btnCadastro.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCadastroActionPerformed(evt);
+            }
+        });
 
         lbNomeDoador.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lbNomeDoador.setText("Nome");
@@ -106,27 +155,29 @@ public class FormDoador extends javax.swing.JFrame {
             }
         });
 
-        cbTipoanguineoDoador.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-" }));
-        cbTipoanguineoDoador.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbTipoanguineoDoadorActionPerformed(evt);
-            }
-        });
-
         lbEmailDoador.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lbEmailDoador.setText("Email:");
 
-        lbTipoSanguineoDoador.setText("Tipo Sanguineo:");
+        lbTipoSanguineoDoador.setText("Orgão:");
 
-        inpEmailDoador.setHorizontalAlignment(javax.swing.JTextField.LEFT);
-        inpEmailDoador.addActionListener(new java.awt.event.ActionListener() {
+        inpOrgaoDoador.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+        inpOrgaoDoador.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inpEmailDoadorActionPerformed(evt);
+                inpOrgaoDoadorActionPerformed(evt);
             }
         });
 
         lbDoencaDoador.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lbDoencaDoador.setText("Doença:");
+        lbDoencaDoador.setText("Portador de Doença:");
+
+        cbDoencaDoador.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SIm", "Não" }));
+
+        inpEmailDoador1.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+        inpEmailDoador1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                inpEmailDoador1ActionPerformed(evt);
+            }
+        });
 
         btnMenu.setText("Menu");
         btnMenu.setActionCommand("");
@@ -186,15 +237,40 @@ public class FormDoador extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(11, Short.MAX_VALUE)
+                .addGap(137, 137, 137)
+                .addComponent(btnCadastro)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnCancelar)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(btnCadastro)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnCancelar)
-                        .addGap(116, 116, 116))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(lbEmailDoador)
+                                .addGap(225, 225, 225))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(inpEmailDoador1, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lbTipoSanguineoDoador)
+                            .addComponent(inpOrgaoDoador, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(55, 55, 55))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addComponent(inpCpfDoador, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(lbCpfDoador)
+                                        .addGap(83, 83, 83)))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lbDoencaDoador)
+                                    .addComponent(cbDoencaDoador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(lbNomeDoador)
@@ -208,68 +284,47 @@ public class FormDoador extends javax.swing.JFrame {
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                         .addComponent(lbSexoDoador)
                                         .addGap(26, 26, 26))
-                                    .addComponent(cbSexoDoador, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lbEmailDoador)
-                                    .addComponent(inpEmailDoador, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lbTipoSanguineoDoador)
-                                    .addComponent(cbTipoanguineoDoador, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addComponent(inpCpfDoador, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(lbCpfDoador)
-                                        .addGap(83, 83, 83)))
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lbDoencaDoador)
-                                    .addComponent(inpDoencaDoador, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(21, 21, 21))))
+                                    .addComponent(cbSexoDoador, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(135, 135, 135))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(32, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addContainerGap(14, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(lbNomeDoador)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(inpNomeDoador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(lbIdadeDoador)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(inpIdadeDoador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(lbNomeDoador)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(inpNomeDoador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(lbIdadeDoador)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(inpIdadeDoador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(lbSexoDoador)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cbSexoDoador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(lbSexoDoador)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lbEmailDoador)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(inpEmailDoador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(lbTipoSanguineoDoador)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cbTipoanguineoDoador, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(cbSexoDoador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lbEmailDoador)
+                    .addComponent(lbTipoSanguineoDoador))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(inpEmailDoador1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(inpOrgaoDoador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(30, 30, 30)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lbDoencaDoador)
                     .addComponent(lbCpfDoador))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(inpCpfDoador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(inpDoencaDoador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(30, 30, 30)
+                    .addComponent(cbDoencaDoador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnCadastro)
                     .addComponent(btnCancelar))
-                .addGap(26, 26, 26))
+                .addGap(38, 38, 38))
         );
 
         pack();
@@ -291,10 +346,6 @@ public class FormDoador extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnRelPacienteActionPerformed
 
-    private void inpDoencaDoadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inpDoencaDoadorActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_inpDoencaDoadorActionPerformed
-
     private void inpIdadeDoadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inpIdadeDoadorActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_inpIdadeDoadorActionPerformed
@@ -311,13 +362,17 @@ public class FormDoador extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_inpNomeDoadorActionPerformed
 
-    private void cbTipoanguineoDoadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbTipoanguineoDoadorActionPerformed
+    private void inpOrgaoDoadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inpOrgaoDoadorActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_cbTipoanguineoDoadorActionPerformed
+    }//GEN-LAST:event_inpOrgaoDoadorActionPerformed
 
-    private void inpEmailDoadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inpEmailDoadorActionPerformed
+    private void btnCadastroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastroActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_inpEmailDoadorActionPerformed
+    }//GEN-LAST:event_btnCadastroActionPerformed
+
+    private void inpEmailDoador1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inpEmailDoador1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_inpEmailDoador1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -341,7 +396,7 @@ public class FormDoador extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new FormDoador().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> FormDoador.getInstance().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -357,13 +412,13 @@ public class FormDoador extends javax.swing.JFrame {
     private javax.swing.JMenuItem btnRelPaciente;
     private javax.swing.JMenu btnRelatorios;
     private javax.swing.JMenu cadMenu;
+    private javax.swing.JComboBox<String> cbDoencaDoador;
     private javax.swing.JComboBox<String> cbSexoDoador;
-    private javax.swing.JComboBox<String> cbTipoanguineoDoador;
     private javax.swing.JTextField inpCpfDoador;
-    private javax.swing.JTextField inpDoencaDoador;
-    private javax.swing.JTextField inpEmailDoador;
+    private javax.swing.JTextField inpEmailDoador1;
     private javax.swing.JTextField inpIdadeDoador;
     private javax.swing.JTextField inpNomeDoador;
+    private javax.swing.JTextField inpOrgaoDoador;
     private javax.swing.JLabel lbCpfDoador;
     private javax.swing.JLabel lbDoencaDoador;
     private javax.swing.JLabel lbEmailDoador;

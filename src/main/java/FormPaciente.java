@@ -1,3 +1,7 @@
+
+import java.awt.event.ActionEvent;
+
+// Luiz Felipe Feranandes Ramos - RA: 2767112
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
@@ -14,8 +18,57 @@ public class FormPaciente extends javax.swing.JFrame {
     /**
      * Creates new form FormPaciente
      */
-    public FormPaciente() {
+    //MÉTODO SINGLETON
+    private static FormPaciente instancia;
+
+    public static FormPaciente getInstance() {
+        if (instancia == null) {
+            instancia = new FormPaciente();
+        }
+        return instancia;
+    }
+
+    private FormPaciente() {
         initComponents();
+        // listeners: cadastrar / cancelar / navegação
+        btnCadastro.addActionListener(evt -> {
+            Paciente p = new Paciente();
+            p.setNome(inpNomePaciente.getText());
+            try {
+                int idade = Integer.parseInt(inpIdadePaciente.getText());
+                p.setIdade(idade);
+            } catch (NumberFormatException nfe) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Idade inválida (não é número)");
+                return;
+            } catch (IdadeInvalidaException ex) {
+                javax.swing.JOptionPane.showMessageDialog(this, ex.getMessage());
+                return;
+            }
+            p.setCpf(inpCpfPaciente.getText());
+            p.setSexo(cbSexoPaciente.getSelectedItem().toString().charAt(0));
+            p.setEmail(inpEmailPaciente.getText());
+            p.setTipoSanguineo(cbTipoanguineoPaciente.getSelectedItem().toString());
+            p.setDoenca(inpDoencaPaciente.getText());
+            BDHospital.getInstance().inserirPaciente(p);
+            javax.swing.JOptionPane.showMessageDialog(this, "Paciente cadastrado com sucesso!");
+            // limpar campos
+            inpNomePaciente.setText(""); inpIdadePaciente.setText(""); inpCpfPaciente.setText(""); inpEmailPaciente.setText(""); inpDoencaPaciente.setText("");
+            cbSexoPaciente.setSelectedIndex(0); cbTipoanguineoPaciente.setSelectedIndex(0);
+        });
+
+        btnCancelar.addActionListener(evt -> {
+            this.dispose();
+            instancia = null;
+        });
+
+        btnCadDoador.addActionListener(evt -> FormDoador.getInstance().setVisible(true));
+        btnCadMedico.addActionListener(evt -> FormMedico.getInstance().setVisible(true));
+        btnRelPaciente.addActionListener(evt -> {
+            java.util.List<Paciente> list = BDHospital.getInstance().listarPacientes();
+            StringBuilder sb = new StringBuilder();
+            for (Paciente pp : list) sb.append(pp.listar()).append('\n');
+            javax.swing.JOptionPane.showMessageDialog(this, sb.length()==0?"Nenhum paciente cadastrado":sb.toString());
+        });
     }
 
     /**
@@ -49,6 +102,7 @@ public class FormPaciente extends javax.swing.JFrame {
         btnCadPaciente = new javax.swing.JMenuItem();
         btnCadDoador = new javax.swing.JMenuItem();
         btnCadMedico = new javax.swing.JMenuItem();
+        btnSair = new javax.swing.JMenuItem();
         btnRelatorios = new javax.swing.JMenu();
         btnRelPaciente = new javax.swing.JMenuItem();
         btnRelDoador = new javax.swing.JMenuItem();
@@ -159,6 +213,14 @@ public class FormPaciente extends javax.swing.JFrame {
         cadMenu.add(btnCadMedico);
 
         btnMenu.add(cadMenu);
+
+        btnSair.setText("Sair");
+        btnSair.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSairActionPerformed(evt);
+            }
+        });
+        btnMenu.add(btnSair);
 
         barMenu.add(btnMenu);
 
@@ -320,6 +382,18 @@ public class FormPaciente extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_inpDoencaPacienteActionPerformed
 
+    private void btnSairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSairActionPerformed
+        sair();
+    }//GEN-LAST:event_btnSairActionPerformed
+
+    public void sair() {
+        int resp = javax.swing.JOptionPane.showConfirmDialog(this, "Deseja realmente sair?", "Saída", javax.swing.JOptionPane.YES_NO_OPTION);
+        if (resp == javax.swing.JOptionPane.YES_OPTION) {
+            this.dispose();
+            instancia = null;
+        }
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -342,7 +416,7 @@ public class FormPaciente extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new FormPaciente().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> FormPaciente.getInstance().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -357,6 +431,7 @@ public class FormPaciente extends javax.swing.JFrame {
     private javax.swing.JMenuItem btnRelMedico;
     private javax.swing.JMenuItem btnRelPaciente;
     private javax.swing.JMenu btnRelatorios;
+    private javax.swing.JMenuItem btnSair;
     private javax.swing.JMenu cadMenu;
     private javax.swing.JComboBox<String> cbSexoPaciente;
     private javax.swing.JComboBox<String> cbTipoanguineoPaciente;

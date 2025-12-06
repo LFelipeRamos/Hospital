@@ -4,8 +4,6 @@
 */
 
 // Interface que define um método listar
-public interface Listavel { //pelo que entendi ele só é usado para ser sobreescrito em algum momento
+public interface Listavel {     
     String listar();
 }
-
-//vou ter que estudar um pouco mais sobre interface pq ainda to com dificuldade pra entender como usar de forma correta no projeto

@@ -1,3 +1,4 @@
+// Luiz Felipe Feranandes Ramos - RA: 2767112
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
@@ -14,7 +15,17 @@ public class FormConsulta extends javax.swing.JFrame {
     /**
      * Creates new form FormConsulta
      */
-    public FormConsulta() {
+    //MÉTODO SINGLETON
+    private static FormConsulta instancia;
+
+    public static FormConsulta getInstance() {
+        if (instancia == null) {
+            instancia = new FormConsulta();
+        }
+        return instancia;
+    }
+
+    private FormConsulta() {
         initComponents();
     }
 
@@ -37,12 +48,13 @@ public class FormConsulta extends javax.swing.JFrame {
         lbNomeMedico = new javax.swing.JLabel();
         inpDataConsulta = new javax.swing.JTextField();
         inpHoraConsulta = new javax.swing.JTextField();
-        barMenu = new javax.swing.JMenuBar();
+        barmenu1 = new javax.swing.JMenuBar();
         btnMenu = new javax.swing.JMenu();
         cadMenu = new javax.swing.JMenu();
         btnCadPaciente = new javax.swing.JMenuItem();
         btnCadDoador = new javax.swing.JMenuItem();
         btnCadMedico = new javax.swing.JMenuItem();
+        btnSair = new javax.swing.JMenuItem();
         btnRelatorios = new javax.swing.JMenu();
         btnRelPaciente = new javax.swing.JMenuItem();
         btnRelDoador = new javax.swing.JMenuItem();
@@ -123,7 +135,10 @@ public class FormConsulta extends javax.swing.JFrame {
 
         btnMenu.add(cadMenu);
 
-        barMenu.add(btnMenu);
+        btnSair.setText("Sair");
+        btnMenu.add(btnSair);
+
+        barmenu1.add(btnMenu);
 
         btnRelatorios.setText("Relatórios");
 
@@ -141,9 +156,9 @@ public class FormConsulta extends javax.swing.JFrame {
         btnRelMedico.setText("Médicos");
         btnRelatorios.add(btnRelMedico);
 
-        barMenu.add(btnRelatorios);
+        barmenu1.add(btnRelatorios);
 
-        setJMenuBar(barMenu);
+        setJMenuBar(barmenu1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -204,36 +219,65 @@ public class FormConsulta extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCadPacienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadPacienteActionPerformed
-        // TODO add your handling code here:
+        FormPaciente.getInstance().setVisible(true);
     }//GEN-LAST:event_btnCadPacienteActionPerformed
 
     private void btnCadDoadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadDoadorActionPerformed
-        // TODO add your handling code here:
+        FormDoador.getInstance().setVisible(true);
     }//GEN-LAST:event_btnCadDoadorActionPerformed
 
     private void btnCadMedicoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadMedicoActionPerformed
-        // TODO add your handling code here:
+        FormMedico.getInstance().setVisible(true);
     }//GEN-LAST:event_btnCadMedicoActionPerformed
 
     private void btnRelPacienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRelPacienteActionPerformed
-        // TODO add your handling code here:
+        java.util.List<Consulta> list = BDHospital.getInstance().listarConsultas();
+        StringBuilder sb = new StringBuilder();
+        for (Consulta cc : list) sb.append(cc.listar()).append('\n');
+        javax.swing.JOptionPane.showMessageDialog(this, sb.length() == 0 ? "Nenhuma consulta cadastrada" : sb.toString());
     }//GEN-LAST:event_btnRelPacienteActionPerformed
 
     private void inpNomeMedicoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inpNomeMedicoActionPerformed
-        // TODO add your handling code here:
+        // no-op
     }//GEN-LAST:event_inpNomeMedicoActionPerformed
 
     private void inpNomePAcienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inpNomePAcienteActionPerformed
-        // TODO add your handling code here:
+        // no-op
     }//GEN-LAST:event_inpNomePAcienteActionPerformed
 
     private void inpDataConsultaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inpDataConsultaActionPerformed
-        // TODO add your handling code here:
+        // no-op
     }//GEN-LAST:event_inpDataConsultaActionPerformed
 
     private void inpHoraConsultaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inpHoraConsultaActionPerformed
-        // TODO add your handling code here:
+        // no-op
     }//GEN-LAST:event_inpHoraConsultaActionPerformed
+
+    private void btnCadastroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastroActionPerformed
+        String nomeMed = inpNomeMedico.getText();
+        String nomePac = inpNomePAciente.getText();
+        java.util.List<Medico> medicos = BDHospital.getInstance().listarMedicos();
+        java.util.List<Paciente> pacientes = BDHospital.getInstance().listarPacientes();
+        Medico medico = null;
+        Paciente paciente = null;
+        for (Medico m : medicos) if (m.getNome() != null && m.getNome().equalsIgnoreCase(nomeMed)) { medico = m; break; }
+        for (Paciente p : pacientes) if (p.getNome() != null && p.getNome().equalsIgnoreCase(nomePac)) { paciente = p; break; }
+        if (medico == null) { javax.swing.JOptionPane.showMessageDialog(this, "Médico não encontrado: " + nomeMed); return; }
+        if (paciente == null) { javax.swing.JOptionPane.showMessageDialog(this, "Paciente não encontrado: " + nomePac); return; }
+        Consulta c = new Consulta();
+        c.setMedico(medico);
+        c.setPaciente(paciente);
+        c.setData(inpDataConsulta.getText());
+        c.setHora(inpHoraConsulta.getText());
+        BDHospital.getInstance().inserirConsulta(c);
+        javax.swing.JOptionPane.showMessageDialog(this, "Consulta cadastrada com sucesso!");
+        inpNomeMedico.setText(""); inpNomePAciente.setText(""); inpDataConsulta.setText(""); inpHoraConsulta.setText("");
+    }//GEN-LAST:event_btnCadastroActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        this.dispose();
+        instancia = null;
+    }//GEN-LAST:event_btnCancelarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -257,11 +301,11 @@ public class FormConsulta extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new FormConsulta().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> FormConsulta.getInstance().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenuBar barMenu;
+    private javax.swing.JMenuBar barmenu1;
     private javax.swing.JMenuItem btnCadDoador;
     private javax.swing.JMenuItem btnCadMedico;
     private javax.swing.JMenuItem btnCadPaciente;
@@ -272,6 +316,7 @@ public class FormConsulta extends javax.swing.JFrame {
     private javax.swing.JMenuItem btnRelMedico;
     private javax.swing.JMenuItem btnRelPaciente;
     private javax.swing.JMenu btnRelatorios;
+    private javax.swing.JMenuItem btnSair;
     private javax.swing.JMenu cadMenu;
     private javax.swing.JTextField inpDataConsulta;
     private javax.swing.JTextField inpHoraConsulta;

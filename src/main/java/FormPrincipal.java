@@ -1,7 +1,6 @@
 
 // NetBeans IDE 27
 // Luiz Felipe Feranandes Ramos - RA 2767112
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /*
@@ -50,11 +49,13 @@ public class FormPrincipal extends javax.swing.JFrame {
         btnCadPaciente = new javax.swing.JMenuItem();
         btnCadDoador = new javax.swing.JMenuItem();
         btnCadMedico = new javax.swing.JMenuItem();
+        btnCadConsulta = new javax.swing.JMenuItem();
         btnSair = new javax.swing.JMenuItem();
         btnRelatorios = new javax.swing.JMenu();
         btnRelPaciente = new javax.swing.JMenuItem();
         btnRelDoador = new javax.swing.JMenuItem();
         btnRelMedico = new javax.swing.JMenuItem();
+        btnRelConsulta = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("LifeGen");
@@ -93,6 +94,14 @@ public class FormPrincipal extends javax.swing.JFrame {
         });
         cadMenu.add(btnCadMedico);
 
+        btnCadConsulta.setText("Consultas");
+        btnCadConsulta.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCadConsultaActionPerformed(evt);
+            }
+        });
+        cadMenu.add(btnCadConsulta);
+
         btnMenu.add(cadMenu);
 
         btnSair.setText("Sair");
@@ -116,10 +125,28 @@ public class FormPrincipal extends javax.swing.JFrame {
         btnRelatorios.add(btnRelPaciente);
 
         btnRelDoador.setText("Doadores");
+        btnRelDoador.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRelDoadorActionPerformed(evt);
+            }
+        });
         btnRelatorios.add(btnRelDoador);
 
         btnRelMedico.setText("Médicos");
+        btnRelMedico.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRelMedicoActionPerformed(evt);
+            }
+        });
         btnRelatorios.add(btnRelMedico);
+
+        btnRelConsulta.setText("Consultas");
+        btnRelConsulta.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRelConsultaActionPerformed(evt);
+            }
+        });
+        btnRelatorios.add(btnRelConsulta);
 
         barMenu.add(btnRelatorios);
 
@@ -130,44 +157,58 @@ public class FormPrincipal extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(90, Short.MAX_VALUE)
+                .addContainerGap(89, Short.MAX_VALUE)
                 .addComponent(jLabel2)
-                .addGap(80, 80, 80))
+                .addGap(81, 81, 81))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(102, 102, 102)
+                .addGap(111, 111, 111)
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(135, Short.MAX_VALUE))
+                .addContainerGap(126, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCadMedicoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadMedicoActionPerformed
-        FormMedico.getInstance().setVisible(true);
+        FormCadMedico.getInstance().setVisible(true);
     }//GEN-LAST:event_btnCadMedicoActionPerformed
 
     private void btnCadDoadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadDoadorActionPerformed
-        FormDoador.getInstance().setVisible(true);
+        FormCadDoador.getInstance().setVisible(true);
     }//GEN-LAST:event_btnCadDoadorActionPerformed
 
     private void btnCadPacienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadPacienteActionPerformed
-        FormPaciente.getInstance().setVisible(true);
+        FormCadPaciente.getInstance().setVisible(true);
     }//GEN-LAST:event_btnCadPacienteActionPerformed
 
     private void btnRelPacienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRelPacienteActionPerformed
-        java.util.List<Paciente> list = BDHospital.getInstance().listarPacientes();
-        StringBuilder sb = new StringBuilder();
-        for (Paciente p : list) sb.append(p.listar()).append('\n');
-        JOptionPane.showMessageDialog(this, sb.length() == 0 ? "Nenhum paciente cadastrado" : sb.toString());
+        FormRelPaciente.getInstance().setVisible(true);
     }//GEN-LAST:event_btnRelPacienteActionPerformed
+
+    private void btnRelDoadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRelDoadorActionPerformed
+        FormRelDoador.getInstance().setVisible(true);
+    }//GEN-LAST:event_btnRelDoadorActionPerformed
+
+    private void btnRelMedicoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRelMedicoActionPerformed
+        FormRelMedico.getInstance().setVisible(true);
+    }//GEN-LAST:event_btnRelMedicoActionPerformed
+
+    private void btnRelConsultaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRelConsultaActionPerformed
+        FormRelConsulta.getInstance().setVisible(true);
+    }//GEN-LAST:event_btnRelConsultaActionPerformed
 
     private void btnSairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSairActionPerformed
         sair();
     }//GEN-LAST:event_btnSairActionPerformed
 
+    private void btnCadConsultaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadConsultaActionPerformed
+        FormCadConsulta.getInstance().setVisible(true);
+    }//GEN-LAST:event_btnCadConsultaActionPerformed
+
+   
     public void sair(){
         int resp = JOptionPane.showConfirmDialog(
             this,
@@ -207,10 +248,12 @@ public class FormPrincipal extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuBar barMenu;
+    private javax.swing.JMenuItem btnCadConsulta;
     private javax.swing.JMenuItem btnCadDoador;
     private javax.swing.JMenuItem btnCadMedico;
     private javax.swing.JMenuItem btnCadPaciente;
     private javax.swing.JMenu btnMenu;
+    private javax.swing.JMenuItem btnRelConsulta;
     private javax.swing.JMenuItem btnRelDoador;
     private javax.swing.JMenuItem btnRelMedico;
     private javax.swing.JMenuItem btnRelPaciente;
@@ -220,8 +263,4 @@ public class FormPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     // End of variables declaration//GEN-END:variables
-
-    private void setDefaultCloseOparation(int EXIT_ON_CLOSE) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
 }

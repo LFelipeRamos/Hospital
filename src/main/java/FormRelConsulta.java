@@ -31,6 +31,9 @@ public class FormRelConsulta extends javax.swing.JFrame {
     private FormRelConsulta() {
         initComponents();
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+
+        btnAlterar.addActionListener(evt -> alterarSelecionado());
+        btnExcluir.addActionListener(evt -> excluirSelecionado());
     }
 
     @Override
@@ -52,6 +55,25 @@ public class FormRelConsulta extends javax.swing.JFrame {
         }
     }
 
+    private void alterarSelecionado() {
+        int row = tbCansulta.getSelectedRow();
+        if (row < 0) { javax.swing.JOptionPane.showMessageDialog(this, "Selecione uma consulta"); return; }
+        Consulta consulta = BDHospital.getInstance().buscarConsultaPorIndice(row);
+        if (consulta == null) { javax.swing.JOptionPane.showMessageDialog(this, "Consulta não encontrada"); return; }
+        FormCadConsulta form = FormCadConsulta.getInstance();
+        form.prepararEdicao(row, consulta);
+        form.setVisible(true);
+    }
+
+    private void excluirSelecionado() {
+        int row = tbCansulta.getSelectedRow();
+        if (row < 0) { javax.swing.JOptionPane.showMessageDialog(this, "Selecione uma consulta"); return; }
+        int resp = javax.swing.JOptionPane.showConfirmDialog(this, "Excluir consulta selecionada?", "Confirmação", javax.swing.JOptionPane.YES_NO_OPTION);
+        if (resp != javax.swing.JOptionPane.YES_OPTION) return;
+        BDHospital.getInstance().removerConsulta(row);
+        atualizarTabela();
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -63,6 +85,9 @@ public class FormRelConsulta extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         tbCansulta = new javax.swing.JTable();
+        pnlAcoes = new javax.swing.JPanel();
+        btnAlterar = new javax.swing.JButton();
+        btnExcluir = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Relatório de Consultas");
@@ -80,15 +105,49 @@ public class FormRelConsulta extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(tbCansulta);
 
+        btnAlterar.setText("Alterar");
+
+        btnExcluir.setText("Excluir");
+
+        javax.swing.GroupLayout pnlAcoesLayout = new javax.swing.GroupLayout(pnlAcoes);
+        pnlAcoes.setLayout(pnlAcoesLayout);
+        pnlAcoesLayout.setHorizontalGroup(
+            pnlAcoesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlAcoesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(btnAlterar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnExcluir)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        pnlAcoesLayout.setVerticalGroup(
+            pnlAcoesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlAcoesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnlAcoesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAlterar)
+                    .addComponent(btnExcluir))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 484, Short.MAX_VALUE)
+                    .addComponent(pnlAcoes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pnlAcoes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 14, Short.MAX_VALUE))
         );
 
         pack();
@@ -131,7 +190,10 @@ public class FormRelConsulta extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAlterar;
+    private javax.swing.JButton btnExcluir;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPanel pnlAcoes;
     private javax.swing.JTable tbCansulta;
     // End of variables declaration//GEN-END:variables
 }

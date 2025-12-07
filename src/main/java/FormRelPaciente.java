@@ -31,6 +31,9 @@ public class FormRelPaciente extends javax.swing.JFrame {
     private FormRelPaciente() {
         initComponents();
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+
+        btnAlterar.addActionListener(evt -> alterarSelecionado());
+        btnExcluir.addActionListener(evt -> excluirSelecionado());
     }
 
     @Override
@@ -55,6 +58,27 @@ public class FormRelPaciente extends javax.swing.JFrame {
         }
     }
 
+    private void alterarSelecionado() {
+        int row = tbPacienteGeral.getSelectedRow();
+        if (row < 0) { javax.swing.JOptionPane.showMessageDialog(this, "Selecione um paciente"); return; }
+        String cpf = String.valueOf(tbPacienteGeral.getValueAt(row, 2));
+        Paciente p = BDHospital.getInstance().buscarPacientePorCpf(cpf);
+        if (p == null) { javax.swing.JOptionPane.showMessageDialog(this, "Paciente não encontrado"); return; }
+        FormCadPaciente form = FormCadPaciente.getInstance();
+        form.prepararEdicao(p);
+        form.setVisible(true);
+    }
+
+    private void excluirSelecionado() {
+        int row = tbPacienteGeral.getSelectedRow();
+        if (row < 0) { javax.swing.JOptionPane.showMessageDialog(this, "Selecione um paciente"); return; }
+        String cpf = String.valueOf(tbPacienteGeral.getValueAt(row, 2));
+        int resp = javax.swing.JOptionPane.showConfirmDialog(this, "Excluir paciente selecionado?", "Confirmação", javax.swing.JOptionPane.YES_NO_OPTION);
+        if (resp != javax.swing.JOptionPane.YES_OPTION) return;
+        BDHospital.getInstance().removerPaciente(cpf);
+        atualizarTabela();
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -66,6 +90,9 @@ public class FormRelPaciente extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         tbPacienteGeral = new javax.swing.JTable();
+        pnlAcoes = new javax.swing.JPanel();
+        btnAlterar = new javax.swing.JButton();
+        btnExcluir = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Relatório Geral Paciente");
@@ -84,17 +111,49 @@ public class FormRelPaciente extends javax.swing.JFrame {
         tbPacienteGeral.setToolTipText("");
         jScrollPane1.setViewportView(tbPacienteGeral);
 
+        btnAlterar.setText("Alterar");
+
+        btnExcluir.setText("Excluir");
+
+        javax.swing.GroupLayout pnlAcoesLayout = new javax.swing.GroupLayout(pnlAcoes);
+        pnlAcoes.setLayout(pnlAcoesLayout);
+        pnlAcoesLayout.setHorizontalGroup(
+            pnlAcoesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlAcoesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(btnAlterar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnExcluir)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        pnlAcoesLayout.setVerticalGroup(
+            pnlAcoesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlAcoesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnlAcoesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAlterar)
+                    .addComponent(btnExcluir))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(pnlAcoes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 12, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 273, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pnlAcoes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 16, Short.MAX_VALUE))
         );
 
         pack();
@@ -137,7 +196,10 @@ public class FormRelPaciente extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAlterar;
+    private javax.swing.JButton btnExcluir;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPanel pnlAcoes;
     private javax.swing.JTable tbPacienteGeral;
     // End of variables declaration//GEN-END:variables
 }

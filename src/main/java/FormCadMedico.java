@@ -17,6 +17,7 @@ public class FormCadMedico extends javax.swing.JFrame {
      */
     //MÉTODO SINGLETON
     private static FormCadMedico instancia;
+    private Medico emEdicao;
 
     public static FormCadMedico getInstance() {
         if (instancia == null) {
@@ -29,7 +30,7 @@ public class FormCadMedico extends javax.swing.JFrame {
         initComponents();
         // listeners
         btnCadastro.addActionListener(evt -> {
-            Medico m = new Medico();
+            Medico m = emEdicao != null ? emEdicao : new Medico();
             m.setNome(inpNomeMedico.getText());
             try {
                 int idade = Integer.parseInt(inpIdadelMedico.getText());
@@ -55,17 +56,46 @@ public class FormCadMedico extends javax.swing.JFrame {
                 return;
             }
             m.setEspecialidade(inpEspecialidadeMedico.getText());
-            BDHospital.getInstance().inserirMedico(m);
-            javax.swing.JOptionPane.showMessageDialog(this, "Médico cadastrado com sucesso!");
-            // limpar
-            inpNomeMedico.setText(""); inpIdadelMedico.setText(""); inpCpfMedico.setText(""); inpEmailMedico.setText(""); inpCrmMedico.setText(""); inpEspecialidadeMedico.setText("");
-            cbSexoMedico.setSelectedIndex(0);
+            if (emEdicao == null) {
+                BDHospital.getInstance().inserirMedico(m);
+                javax.swing.JOptionPane.showMessageDialog(this, "Médico cadastrado com sucesso!");
+            } else {
+                BDHospital.getInstance().atualizarMedico(m);
+                javax.swing.JOptionPane.showMessageDialog(this, "Médico atualizado com sucesso!");
+            }
+            limparCampos();
         });
 
         btnCancelar.addActionListener(evt -> {
             this.dispose();
             instancia = null;
+            emEdicao = null;
         });
+    }
+
+    public void prepararEdicao(Medico existente) {
+        if (existente == null) return;
+        emEdicao = existente;
+        inpNomeMedico.setText(existente.getNome());
+        inpIdadelMedico.setText(String.valueOf(existente.getIdade()));
+        inpCpfMedico.setText(existente.getCpf());
+        inpCpfMedico.setEnabled(false);
+        cbSexoMedico.setSelectedItem(String.valueOf(existente.getSexo()));
+        inpEmailMedico.setText(existente.getEmail());
+        inpCrmMedico.setText(String.valueOf(existente.getCrm()));
+        inpCrmMedico.setEnabled(false);
+        inpEspecialidadeMedico.setText(existente.getEspecialidade());
+        btnCadastro.setText("Salvar");
+        this.toFront();
+    }
+
+    private void limparCampos() {
+        emEdicao = null;
+        btnCadastro.setText("Cadastrar");
+        inpCpfMedico.setEnabled(true);
+        inpCrmMedico.setEnabled(true);
+        inpNomeMedico.setText(""); inpIdadelMedico.setText(""); inpCpfMedico.setText(""); inpEmailMedico.setText(""); inpCrmMedico.setText(""); inpEspecialidadeMedico.setText("");
+        cbSexoMedico.setSelectedIndex(0);
     }
 
     /**

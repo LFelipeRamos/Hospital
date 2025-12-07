@@ -20,6 +20,7 @@ public class FormCadPaciente extends javax.swing.JFrame {
      */
     //MÉTODO SINGLETON
     private static FormCadPaciente instancia;
+    private Paciente emEdicao;
 
     public static FormCadPaciente getInstance() {
         if (instancia == null) {
@@ -32,7 +33,7 @@ public class FormCadPaciente extends javax.swing.JFrame {
         initComponents();
         // listeners: cadastrar / cancelar / navegação
         btnCadastro.addActionListener(evt -> {
-            Paciente p = new Paciente();
+            Paciente p = emEdicao != null ? emEdicao : new Paciente();
             p.setNome(inpNomePaciente.getText());
             try {
                 int idade = Integer.parseInt(inpIdadePaciente.getText());
@@ -49,17 +50,44 @@ public class FormCadPaciente extends javax.swing.JFrame {
             p.setEmail(inpEmailPaciente.getText());
             p.setTipoSanguineo(cbTipoanguineoPaciente.getSelectedItem().toString());
             p.setDoenca(cbDoencaPaciente.getSelectedItem().toString());
-            BDHospital.getInstance().inserirPaciente(p);
-            javax.swing.JOptionPane.showMessageDialog(this, "Paciente cadastrado com sucesso!");
-            // limpar campos
-            inpNomePaciente.setText(""); inpIdadePaciente.setText(""); inpCpfPaciente.setText(""); inpEmailPaciente.setText(""); cbDoencaPaciente.setSelectedIndex(0);
-            cbSexoPaciente.setSelectedIndex(0); cbTipoanguineoPaciente.setSelectedIndex(0);
+            if (emEdicao == null) {
+                BDHospital.getInstance().inserirPaciente(p);
+                javax.swing.JOptionPane.showMessageDialog(this, "Paciente cadastrado com sucesso!");
+            } else {
+                BDHospital.getInstance().atualizarPaciente(p);
+                javax.swing.JOptionPane.showMessageDialog(this, "Paciente atualizado com sucesso!");
+            }
+            limparCampos();
         });
 
         btnCancelar.addActionListener(evt -> {
             this.dispose();
             instancia = null;
+            emEdicao = null;
         });
+    }
+
+    public void prepararEdicao(Paciente existente) {
+        if (existente == null) return;
+        emEdicao = existente;
+        inpNomePaciente.setText(existente.getNome());
+        inpIdadePaciente.setText(String.valueOf(existente.getIdade()));
+        inpCpfPaciente.setText(existente.getCpf());
+        inpCpfPaciente.setEnabled(false);
+        cbSexoPaciente.setSelectedItem(String.valueOf(existente.getSexo()));
+        inpEmailPaciente.setText(existente.getEmail());
+        cbTipoanguineoPaciente.setSelectedItem(existente.getTipoSanguineo());
+        cbDoencaPaciente.setSelectedItem(existente.getDoenca());
+        btnCadastro.setText("Salvar");
+        this.toFront();
+    }
+
+    private void limparCampos() {
+        emEdicao = null;
+        btnCadastro.setText("Cadastrar");
+        inpCpfPaciente.setEnabled(true);
+        inpNomePaciente.setText(""); inpIdadePaciente.setText(""); inpCpfPaciente.setText(""); inpEmailPaciente.setText(""); cbDoencaPaciente.setSelectedIndex(0);
+        cbSexoPaciente.setSelectedIndex(0); cbTipoanguineoPaciente.setSelectedIndex(0);
     }
 
     /**

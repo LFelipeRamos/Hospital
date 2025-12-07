@@ -20,6 +20,7 @@ public class FormCadConsulta extends javax.swing.JFrame {
      */
     //MÉTODO SINGLETON
     private static FormCadConsulta instancia;
+    private Integer indiceEmEdicao;
 
     public static FormCadConsulta getInstance() {
         if (instancia == null) {
@@ -174,9 +175,14 @@ public class FormCadConsulta extends javax.swing.JFrame {
         c.setPaciente(paciente);
         c.setData(inpDataConsulta.getText());
         c.setHora(inpHoraConsulta.getText());
-        BDHospital.getInstance().inserirConsulta(c);
-        javax.swing.JOptionPane.showMessageDialog(this, "Consulta cadastrada com sucesso!");
-        cbMedico.setSelectedIndex(-1); cbPaciente.setSelectedIndex(-1); inpDataConsulta.setText(""); inpHoraConsulta.setText("");
+        if (indiceEmEdicao == null) {
+            BDHospital.getInstance().inserirConsulta(c);
+            javax.swing.JOptionPane.showMessageDialog(this, "Consulta cadastrada com sucesso!");
+        } else {
+            BDHospital.getInstance().atualizarConsulta(indiceEmEdicao, c);
+            javax.swing.JOptionPane.showMessageDialog(this, "Consulta atualizada com sucesso!");
+        }
+        limparCampos();
     }//GEN-LAST:event_btnCadastroActionPerformed
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
@@ -195,6 +201,18 @@ public class FormCadConsulta extends javax.swing.JFrame {
         if(resp == JOptionPane.YES_OPTION){
             dispose();
         }
+    }
+
+    public void prepararEdicao(int indice, Consulta existente) {
+        if (existente == null) return;
+        this.indiceEmEdicao = indice;
+        carregarCombos();
+        cbMedico.setSelectedItem(existente.getMedico());
+        cbPaciente.setSelectedItem(existente.getPaciente());
+        inpDataConsulta.setText(existente.getData());
+        inpHoraConsulta.setText(existente.getHora());
+        btnCadastro.setText("Salvar");
+        this.toFront();
     }
     /**
      * @param args the command line arguments
@@ -248,5 +266,11 @@ public class FormCadConsulta extends javax.swing.JFrame {
         }
         cbPaciente.setModel(pacModel);
         cbPaciente.setSelectedIndex(pacModel.getSize() > 0 ? 0 : -1);
+    }
+
+    private void limparCampos() {
+        indiceEmEdicao = null;
+        btnCadastro.setText("Cadastrar");
+        cbMedico.setSelectedIndex(-1); cbPaciente.setSelectedIndex(-1); inpDataConsulta.setText(""); inpHoraConsulta.setText("");
     }
 }

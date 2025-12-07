@@ -76,5 +76,16 @@ public class BDHospital {
     public void inserirConsulta(Consulta c) { consultas.add(c); }
     // compatibilidade com API antiga (Hospital)
     public void adicionarConsulta(Consulta c) { inserirConsulta(c); }
+    public Consulta buscarConsultaPorIndice(int indice) {
+        if (indice >= 0 && indice < consultas.size()) return consultas.get(indice);
+        return null;
+    }
+    public void atualizarConsulta(int indice, Consulta c) {
+        if (indice >= 0 && indice < consultas.size()) consultas.set(indice, c);
+    }
+    public boolean removerConsulta(int indice) {
+        if (indice >= 0 && indice < consultas.size()) { consultas.remove(indice); return true; }
+        return false;
+    }
     public List<Consulta> listarConsultas() { return new ArrayList<>(consultas); }
 }

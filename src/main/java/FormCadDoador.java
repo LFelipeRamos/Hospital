@@ -20,6 +20,7 @@ public class FormCadDoador extends javax.swing.JFrame {
      */
     //MÉTODO SINGLETON
     private static FormCadDoador instancia;
+    private Doador emEdicao;
 
     public static FormCadDoador getInstance() {
         if (instancia == null) {
@@ -32,7 +33,7 @@ public class FormCadDoador extends javax.swing.JFrame {
         initComponents();
         // listeners
         btnCadastro.addActionListener(evt -> {
-            Doador d = new Doador();
+            Doador d = emEdicao != null ? emEdicao : new Doador();
             d.setNome(inpNomeDoador.getText());
             try {
                 int idade = Integer.parseInt(inpIdadeDoador.getText());
@@ -50,20 +51,46 @@ public class FormCadDoador extends javax.swing.JFrame {
             // usar campo existente como órgão (form foi criado originalmente com outro nome)
             d.setOrgao(inpOrgaoDoador.getText());
             d.setDataCadastro(java.time.LocalDate.now().toString());
-            BDHospital.getInstance().inserirDoador(d);
-            javax.swing.JOptionPane.showMessageDialog(this, "Doador cadastrado com sucesso!");
-            // limpar
-            inpNomeDoador.setText(""); inpIdadeDoador.setText(""); inpCpfDoador.setText(""); inpOrgaoDoador.setText("");
-            cbSexoDoador.setSelectedIndex(0); inpOrgaoDoador.setText("");
+            if (emEdicao == null) {
+                BDHospital.getInstance().inserirDoador(d);
+                javax.swing.JOptionPane.showMessageDialog(this, "Doador cadastrado com sucesso!");
+            } else {
+                BDHospital.getInstance().atualizarDoador(d);
+                javax.swing.JOptionPane.showMessageDialog(this, "Doador atualizado com sucesso!");
+            }
+            limparCampos();
         });
 
         btnCancelar.addActionListener(evt -> {
             this.dispose();
             instancia = null;
+            emEdicao = null;
         });
 
         
     }
+
+            public void prepararEdicao(Doador existente) {
+                if (existente == null) return;
+                emEdicao = existente;
+                inpNomeDoador.setText(existente.getNome());
+                inpIdadeDoador.setText(String.valueOf(existente.getIdade()));
+                inpCpfDoador.setText(existente.getCpf());
+                inpCpfDoador.setEnabled(false);
+                cbSexoDoador.setSelectedItem(String.valueOf(existente.getSexo()));
+                inpEmailDoador.setText(existente.getEmail());
+                inpOrgaoDoador.setText(existente.getOrgao());
+                btnCadastro.setText("Salvar");
+                this.toFront();
+            }
+
+            private void limparCampos() {
+                emEdicao = null;
+                btnCadastro.setText("Cadastrar");
+                inpCpfDoador.setEnabled(true);
+                inpNomeDoador.setText(""); inpIdadeDoador.setText(""); inpCpfDoador.setText(""); inpOrgaoDoador.setText("");
+                cbSexoDoador.setSelectedIndex(0); inpOrgaoDoador.setText(""); inpEmailDoador.setText("");
+            }
 
     /**
      * This method is called from within the constructor to initialize the form.
